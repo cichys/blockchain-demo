@@ -1,8 +1,8 @@
 import time
 import json
-
 from flask import Flask, request
 import requests
+
 from Blockchain import Blockchain
 
 
@@ -82,11 +82,6 @@ def validate_and_add_block():
     return "Block added to the chain", 201
 
 
-
-app.run(debug=True, port=8000)
-
-
-
 def consensus():
     """
     Our simple consensus algorithm. If a longer valid chain is found, our chain is replaced with it.
@@ -115,3 +110,7 @@ def announce_new_block(block):
     for peer in peers:
         url = "http://{}/add_block".format(peer)
         requests.post(url, data=json.dumps(block.__dict__, sort_keys=True))
+
+
+
+app.run(debug=True, port=8000)
