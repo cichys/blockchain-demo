@@ -1,10 +1,8 @@
 import time
-from Block import Block
+from classes.Block import Block
+from config.config import CONFIG
 
 class Blockchain:
-
-    # difficulty of PoW algorithm
-    difficulty = 2
 
     @property
     def last_block(self):
@@ -36,7 +34,7 @@ class Blockchain:
         block.nonce = 0
 
         computed_hash = block.compute_hash()
-        while not computed_hash.startswith('0' * Blockchain.difficulty):
+        while not computed_hash.startswith('0' * CONFIG['DIFFICULTY']):
             block.nonce += 1
             computed_hash = block.compute_hash()
 
@@ -65,7 +63,7 @@ class Blockchain:
         Check if block_hash is valid hash of block and satisfies
         the difficulty criteria.
         """
-        return (block_hash.startswith('0' * Blockchain.difficulty) and
+        return (block_hash.startswith('0' * CONFIG['DIFFICULTY']) and
                 block_hash == block.compute_hash())
 
 
