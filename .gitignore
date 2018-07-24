@@ -241,25 +241,9 @@ $RECYCLE.BIN/
 # End of https://www.gitignore.io/api/osx,linux,python,windows,pycharm,visualstudiocode
 
 
-
-# package directories
-node_modules
-jspm_packages
-genius-realtime-data/
-test_edges.csv
-test_edges_root.csv
-test_vertex.csv
-
-# Serverless directories
-.serverless
 .project
 /bundle/
 .idea
-
-# Frontend directories
-frontend/node_modules
-frontend/dist/
-
 
 .bundle
 .vagrant
@@ -273,4 +257,4 @@ _meta/_tmp/
 _apidocs
 .vscode
 
-packaged.yaml
+data/*.json

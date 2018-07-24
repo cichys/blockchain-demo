@@ -1,5 +1,7 @@
 import time
+
 from classes.Block import Block
+from classes.DataFiles import DataFiles
 from config.config import CONFIG
 
 
@@ -15,6 +17,7 @@ class Blockchain:
         self.chain = []
         self.wallets = set()
         self.create_genesis_block()
+        self.data_files = DataFiles()
 
 
     def create_genesis_block(self):
@@ -81,20 +84,21 @@ class Blockchain:
         """
         if not self.unconfirmed_transactions:
             return False
- 
+
         last_block = self.last_block
- 
+
         new_block = Block(index=last_block.index + 1,
                           transactions=self.unconfirmed_transactions,
                           timestamp=time.time(),
                           previous_hash=last_block.hash)
- 
+
         proof = self.proof_of_work(new_block)
         self.add_block(new_block, proof)
 
         self.unconfirmed_transactions = []
         # announce it to the network
         network.announce_new_block(new_block)
+        self.data_files.update_chain(self.chain)
         return new_block.index
 
 
@@ -104,6 +108,7 @@ class Blockchain:
         """
         self.wallets.add(wallet)
         network.announce_new_wallet(wallet)
+        self.data_files.update_wallets(self.wallets)
         return True
 
 
