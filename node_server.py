@@ -4,6 +4,7 @@ from flask import Flask, request
 import requests
 
 from classes.Blockchain import Blockchain
+from classes.Network import Network
 
 
 app =  Flask(__name__)
@@ -11,10 +12,12 @@ app =  Flask(__name__)
 # the node's copy of blockchain
 blockchain = Blockchain()
 
-# the address to other participating members of the network
-peers = set()
+network = Network()
 
 
+
+# endpoint to submit a new transaction. This will be used by
+# our application to add new data (posts) to the blockchain
 @app.route('/new_transaction', methods=['POST'])
 def new_transaction():
     tx_data = request.get_json()
@@ -31,8 +34,13 @@ def new_transaction():
     return "Success", 201
 
 
+# endpoint to return the node's copy of the chain.
+# Our application will be using this endpoint to query
+# all the posts to display.
 @app.route('/chain', methods=['GET'])
 def get_chain():
+    # make sure we've the longest chain
+    network.consensus(blockchain)
     chain_data = []
     for block in blockchain.chain:
         chain_data.append(block.__dict__)
@@ -40,9 +48,12 @@ def get_chain():
                        "chain": chain_data})
 
 
+# endpoint to request the node to mine the unconfirmed
+# transactions (if any). We'll be using it to initiate
+# a command to mine from our application itself.
 @app.route('/mine', methods=['GET'])
 def mine_unconfirmed_transactions():
-    result = blockchain.mine()
+    result = blockchain.mine(network)
     if not result:
         return "No transactions to mine"
     return "Block #{} is mined.".format(result)
@@ -61,12 +72,13 @@ def register_new_peers():
     if not nodes:
         return "Invalid data", 400
     for node in nodes:
-        peers.add(node)
+        network.peers.add(node)
 
     return "Success", 201
 
 
-# endpoint to add a block mined by someone else to the node's chain.
+# endpoint to add a block mined by someone else to the node's chain. 
+# The block is first verified by the node and then added to the chain.
 @app.route('/add_block', methods=['POST'])
 def validate_and_add_block():
     block_data = request.get_json()
@@ -81,35 +93,6 @@ def validate_and_add_block():
 
     return "Block added to the chain", 201
 
-
-def consensus():
-    """
-    Our simple consensus algorithm. If a longer valid chain is found, our chain is replaced with it.
-    """
-    global blockchain
-
-    longest_chain = None
-    current_len = len(blockchain)
-
-    for node in peers:
-        response = requests.get('http://{}/chain'.format(node))
-        length = response.json()['length']
-        chain = response.json()['chain']
-        if length > current_len and blockchain.check_chain_validity(chain):
-            current_len = length
-            longest_chain = chain
- 
-    if longest_chain:
-        blockchain = longest_chain
-        return True
- 
-    return False
-
-
-def announce_new_block(block):
-    for peer in peers:
-        url = "http://{}/add_block".format(peer)
-        requests.post(url, data=json.dumps(block.__dict__, sort_keys=True))
 
 
 

@@ -2,6 +2,7 @@ import time
 from classes.Block import Block
 from config.config import CONFIG
 
+
 class Blockchain:
 
     @property
@@ -71,7 +72,7 @@ class Blockchain:
         self.unconfirmed_transactions.append(transaction)
 
 
-    def mine(self):
+    def mine(self, network):
         """
         This function serves as an interface to add the pending
         transactions to the blockchain by adding them to the block
@@ -89,5 +90,9 @@ class Blockchain:
  
         proof = self.proof_of_work(new_block)
         self.add_block(new_block, proof)
+
         self.unconfirmed_transactions = []
+        # announce it to the network
+        network.announce_new_block(new_block)
         return new_block.index
+
