@@ -38,3 +38,12 @@ class Network:
             url = "http://{}/add_block".format(peer)
             requests.post(url, data=json.dumps(block.__dict__, sort_keys=True))
 
+
+    def announce_new_wallet(self, wallet):
+        """
+        A function to announce to the network that a wallet has been created.
+        """
+        for peer in self.peers:
+            url = "http://{}/add_wallet_notification".format(peer)
+            requests.post(url, data=json.dumps(wallet.__dict__, sort_keys=True))
+

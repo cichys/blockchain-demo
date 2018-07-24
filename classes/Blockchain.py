@@ -13,6 +13,7 @@ class Blockchain:
     def __init__(self):
         self.unconfirmed_transactions = [] # data yet to get into blockchain
         self.chain = []
+        self.wallets = set()
         self.create_genesis_block()
 
 
@@ -95,4 +96,33 @@ class Blockchain:
         # announce it to the network
         network.announce_new_block(new_block)
         return new_block.index
+
+
+    def add_new_wallet(self, wallet, network):
+        """
+        Add a new wallet on the blockchain and announce to the network
+        """
+        self.wallets.add(wallet)
+        network.announce_new_wallet(wallet)
+        return True
+
+
+    def check_wallet_exists(self, name):
+        """
+        Check if wallet exists in the blockchain
+        """
+        for wallet in self.wallets:
+            if name == wallet.name:
+                return True
+        return False
+
+
+    def check_wallet_balance(self, name, amount):
+        """
+        Check if wallet has enough amount to complete the transaction
+        """
+        for wallet in self.wallets:
+            if name == wallet.name:
+                return wallet.balance >= amount
+        return False
 

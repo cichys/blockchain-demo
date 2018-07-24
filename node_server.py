@@ -5,6 +5,7 @@ import requests
 
 from classes.Blockchain import Blockchain
 from classes.Network import Network
+from classes.Wallet import Wallet
 
 
 app =  Flask(__name__)
@@ -21,12 +22,20 @@ network = Network()
 @app.route('/new_transaction', methods=['POST'])
 def new_transaction():
     tx_data = request.get_json()
-    required_fields = ["author", "content"]
+    required_fields = ["from", "amount", "to"]
  
     for field in required_fields:
         if not tx_data.get(field):
             return "Invalid transaction data", 404
- 
+
+    tx_data["amount"] = int(tx_data["amount"])
+
+    if not blockchain.check_wallet_exists(tx_data["from"]) or not blockchain.check_wallet_exists(tx_data["to"]):
+        return "Invalid wallet", 404
+
+    if not blockchain.check_wallet_balance(tx_data["from"], tx_data["amount"]):
+        return "Not enough balance in this wallet"
+
     tx_data["timestamp"] = time.time()
     blockchain.add_new_transaction(tx_data)
 
@@ -79,6 +88,7 @@ def register_new_peers():
     return "Success", 201
 
 
+# endpoint to list all the peers in the network
 @app.route('/get_nodes', methods=['GET'])
 def get_registered_nodes():
     list_peers = [] #because peers is a set
@@ -104,6 +114,32 @@ def validate_and_add_block():
     return "Block added to the chain", 201
 
 
+
+# endpoint to create a new wallet.
+@app.route('/new_wallet', methods=['POST'])
+def new_wallet():
+    wallet_data = request.get_json()
+    required_fields = ["name"]
+ 
+    for field in required_fields:
+        if not wallet_data.get(field):
+            return "Invalid transaction data", 404
+ 
+    wallet_data["timestamp"] = time.time()
+    wallet = Wallet(wallet_data)
+    blockchain.add_new_wallet(wallet, network)
+
+    return "Success", 201
+
+
+
+# endpoint to list all the wallets
+@app.route('/get_wallets', methods=['GET'])
+def get_wallets():
+    list_wallets = [] #because wallets is a set
+    for wallet in blockchain.wallets:
+        list_wallets.append(wallet.__dict__)
+    return json.dumps(list_wallets)
 
 
 app.run(debug=True, port=8000)
