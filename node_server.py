@@ -25,12 +25,11 @@ def new_transaction():
  
     for field in required_fields:
         if not tx_data.get(field):
-            return "Invlaid transaction data", 404
+            return "Invalid transaction data", 404
  
     tx_data["timestamp"] = time.time()
- 
     blockchain.add_new_transaction(tx_data)
- 
+
     return "Success", 201
 
 
@@ -44,8 +43,11 @@ def get_chain():
     chain_data = []
     for block in blockchain.chain:
         chain_data.append(block.__dict__)
-    return json.dumps({"length": len(chain_data),
-                       "chain": chain_data})
+
+    return json.dumps({
+        "length": len(chain_data),
+        "chain": chain_data
+    })
 
 
 # endpoint to request the node to mine the unconfirmed
@@ -75,6 +77,14 @@ def register_new_peers():
         network.peers.add(node)
 
     return "Success", 201
+
+
+@app.route('/get_nodes', methods=['GET'])
+def get_registered_nodes():
+    list_peers = [] #because peers is a set
+    for peer in network.peers:
+        list_peers.append(peer)
+    return json.dumps(list_peers)
 
 
 # endpoint to add a block mined by someone else to the node's chain. 
