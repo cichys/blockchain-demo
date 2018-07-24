@@ -7,7 +7,7 @@ source env/bin/activate
 pip3 install -r requirements.txt
 
 python3 node_server.py
-python3 run_app.py
+python3 app/run.py
 ```
 
 
