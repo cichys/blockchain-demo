@@ -30,6 +30,9 @@ def new_transaction():
 
     tx_data["amount"] = int(tx_data["amount"])
 
+    if tx_data["amount"] < 0:
+        return "Invalid amount", 404
+
     if not blockchain.check_wallet_exists(tx_data["from"]) or not blockchain.check_wallet_exists(tx_data["to"]):
         return "Invalid wallet", 404
 
