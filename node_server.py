@@ -130,7 +130,7 @@ def new_wallet():
  
     wallet_data["timestamp"] = time.time()
     wallet = Wallet(wallet_data)
-    blockchain.add_new_wallet(wallet, network)
+    #blockchain.add_new_wallet(wallet, network)
 
     return "Success", 201
 

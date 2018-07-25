@@ -7,17 +7,17 @@ from config.config import CONFIG
 
 class Blockchain:
 
-    @property
-    def last_block(self):
-        return self.chain[-1]
-
-
     def __init__(self):
         self.unconfirmed_transactions = [] # data yet to get into blockchain
         self.chain = []
         self.wallets = set()
         self.create_genesis_block()
         self.data_files = DataFiles()
+
+
+    @property
+    def last_block(self):
+        return self.chain[-1]
 
 
     def create_genesis_block(self):
